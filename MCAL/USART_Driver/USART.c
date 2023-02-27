@@ -39,12 +39,10 @@ void MCAL_USART_init(USART_pinConfig* pinCfg)
 	Global_pinCfg = *pinCfg ;
 	
 	//The URSEL must be one when writing the UCSRC
-	UCSRC |= (1 << 7) ;
+	UCSRC |= (1 << URSEL) ;
+
+	UCSRC |= pinCfg->USART_Parity_Mode | pinCfg->USART_StopBits | pinCfg->USART_Mode | pinCfg->USART_ClockPolarity ;
 	
-	UCSRC |= pinCfg->USART_Mode ;
-	UCSRC |= pinCfg->USART_Parity_Mode ;
-	UCSRC |= pinCfg->USART_StopBits ;
-	UCSRC |= pinCfg->USART_ClockPolarity ;
 	// Data Bits
 	if(pinCfg->USART_DataBits != USART_DataBits_9)
 		{	
@@ -56,13 +54,13 @@ void MCAL_USART_init(USART_pinConfig* pinCfg)
 			UCSRB |= (uint8_t)(1 << 2) ;
 		}
 			
-	UCSRC &= ~(1 << URSEL) ;
+	//UCSRC &= ~(1 << URSEL) ;
 	
 	// Baud Rate
 	// Only Normal Mode Supported 
 	// Fast Asynchronous Mode isn't supported yet
 	UBRRL = pinCfg->USART_BaudRate ; 
-	
+
 	UCSRB |= pinCfg->USART_TX_RX ;
 	
 }
@@ -81,14 +79,9 @@ void MCAL_USART_SendData(uint8_t data)
 	UDR = data ;
 	
 }
+
 uint8_t MCAL_USART_ReciveData(void) 
 {
 	while ( !(UCSRA & (1<<RXC)) ) ;
 	return UDR;
 }
-
-
-
-
-
- 
